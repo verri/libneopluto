@@ -2,6 +2,7 @@
 #include <neopluto/tag.hpp>
 
 #include <cassert>
+#include <iomanip>
 #include <sqlite3.h>
 #include <sstream>
 
@@ -13,7 +14,7 @@ auto tag::update_name(const char* name) -> void
   assert(db);
 
   std::stringstream ss;
-  ss << "UPDATE Tag SET name  = '" << name << "' WHERE id = " << id << ';';
+  ss << "UPDATE Tag SET name  = " << std::quoted(name) << " WHERE id = " << id << ';';
   db->exec_query(ss.str().c_str());
 }
 

@@ -3,7 +3,7 @@
 
 #include <cassert>
 #include <cool/defer.hpp>
-#include <functional>
+#include <iomanip>
 #include <sqlite3.h>
 #include <sstream>
 
@@ -25,13 +25,13 @@ constexpr char init_db_query[] = R"(
   );
 
   CREATE TABLE IF NOT EXISTS Entry (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     date INTEGER NOT NULL,
     accountfrom INTEGER DEFAULT NULL,
     accountto INTEGER DEFAULT NULL,
     description TEXT NOT NULL,
-    tag INTEGER DEFAULT NULL,
     value REAL NOT NULL,
+    tag INTEGER DEFAULT NULL,
 
     FOREIGN KEY (accountfrom) REFERENCES Account(id) ON DELETE SET NULL,
     FOREIGN KEY (accountto) REFERENCES Account(id) ON DELETE SET NULL,
@@ -64,7 +64,7 @@ auto database::create_account(const char* name) -> account
   assert(db);
 
   std::stringstream ss;
-  ss << "INSERT INTO Account(name) VALUES ('" << name << "');";
+  ss << "INSERT INTO Account(name) VALUES (" << std::quoted(name) << ");";
 
   std::int64_t id = -1;
   try {
@@ -86,7 +86,7 @@ auto database::retrieve_account(const char* name, bool create) -> account
   std::int64_t id = -1;
 
   std::stringstream ss;
-  ss << "SELECT id FROM Account WHERE name = '" << name << "';";
+  ss << "SELECT id FROM Account WHERE name = " << std::quoted(name) << ";";
 
   exec_query(ss.str().c_str(), [&](sqlite3_stmt* stmt) {
     id = sqlite3_column_int(stmt, 0);
@@ -107,7 +107,7 @@ auto database::create_tag(const char* name) -> tag
   assert(db);
 
   std::stringstream ss;
-  ss << "INSERT INTO Tag(name) VALUES ('" << name << "');";
+  ss << "INSERT INTO Tag(name) VALUES (" << std::quoted(name) << ");";
 
   std::int64_t id = -1;
   try {
@@ -125,12 +125,11 @@ auto database::create_tag(const char* name) -> tag
 
 auto database::retrieve_tag(const char* name, bool create) -> tag
 {
-
   assert(db);
   std::int64_t id = -1;
 
   std::stringstream ss;
-  ss << "SELECT id FROM Tag WHERE name = '" << name << "';";
+  ss << "SELECT id FROM Tag WHERE name = " << std::quoted(name) << ";";
 
   exec_query(ss.str().c_str(), [&](sqlite3_stmt* stmt) {
     id = sqlite3_column_int(stmt, 0);
@@ -144,6 +143,58 @@ auto database::retrieve_tag(const char* name, bool create) -> tag
     return create_tag(name);
 
   return tag(id, shared_from_this());
+}
+
+auto database::income(date d, const account& ac, const char* desc, double value) -> entry
+{
+  assert(db);
+
+  std::stringstream ss;
+  ss << "INSERT INTO Entry(date, accountto, description, value) VALUES ("
+     << d.to_integer() << ", " << ac.id << ", " << std::quoted(desc) << ", " << value
+     << ");";
+
+  std::int64_t id = -1;
+  exec_query(ss.str().c_str());
+  id = sqlite3_last_insert_rowid(db);
+
+  assert(id > 0);
+  return entry(id, shared_from_this());
+}
+
+auto database::expense(date d, const account& ac, const char* desc, double value) -> entry
+{
+  assert(db);
+
+  std::stringstream ss;
+  ss << "INSERT INTO Entry(date, accountfrom, description, value) VALUES ("
+     << d.to_integer() << ", " << ac.id << ", " << std::quoted(desc) << ", " << value
+     << ");";
+
+  std::int64_t id = -1;
+  exec_query(ss.str().c_str());
+  id = sqlite3_last_insert_rowid(db);
+
+  assert(id > 0);
+  return entry(id, shared_from_this());
+}
+
+auto database::transfer(date d, const account& from, const account& to, const char* desc,
+                        double value) -> entry
+{
+  assert(db);
+
+  std::stringstream ss;
+  ss << "INSERT INTO Entry(date, accountfrom, accountto, description, value) VALUES ("
+     << d.to_integer() << ", " << from.id << ", " << to.id << ", " << std::quoted(desc)
+     << ", " << value << ");";
+
+  std::int64_t id = -1;
+  exec_query(ss.str().c_str());
+  id = sqlite3_last_insert_rowid(db);
+
+  assert(id > 0);
+  return entry(id, shared_from_this());
 }
 
 database::database(const char* filename)

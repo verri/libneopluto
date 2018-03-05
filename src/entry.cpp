@@ -1,5 +1,5 @@
-#include <neopluto/account.hpp>
 #include <neopluto/database.hpp>
+#include <neopluto/entry.hpp>
 
 #include <cassert>
 #include <iomanip>
@@ -9,22 +9,23 @@
 namespace npl
 {
 
-auto account::update_name(const char* name) -> void
+auto entry::update_description(const char* desc) -> void
 {
   assert(db);
 
   std::stringstream ss;
-  ss << "UPDATE Account SET name  = " << std::quoted(name) << " WHERE id = " << id << ';';
+  ss << "UPDATE Entry SET description = " << std::quoted(desc) << " WHERE id = " << id
+     << ';';
 
   db->exec_query(ss.str().c_str());
 }
 
-auto account::retrieve_name() const -> std::string
+auto entry::retrieve_description() const -> std::string
 {
   assert(db);
 
   std::stringstream ss;
-  ss << "SELECT name FROM Account WHERE id = " << id << ";";
+  ss << "SELECT description FROM Entry WHERE id = " << id << ";";
 
   std::string name;
 
@@ -34,12 +35,12 @@ auto account::retrieve_name() const -> std::string
   });
 
   if (name.empty())
-    throw std::runtime_error{"account was deleted"};
+    throw std::runtime_error{"entry was deleted"};
 
   return name;
 }
 
-auto account::erase() -> void
+auto entry::erase() -> void
 {
   assert(db);
 
@@ -50,6 +51,6 @@ auto account::erase() -> void
   db = nullptr;
 }
 
-account::account(std::int64_t id, std::shared_ptr<database> db) : id{id}, db{db} {}
+entry::entry(std::int64_t id, std::shared_ptr<database> db) : id{id}, db{db} {}
 
 } // namespace npl

@@ -6,6 +6,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_library(neopluto
   src/account.cpp
   src/database.cpp
+  src/date.cpp
+  src/entry.cpp
   src/exception.cpp
   src/tag.cpp
   src/tag_model.cpp)
@@ -15,7 +17,7 @@ pkg_check_modules(SQLITE3 REQUIRED sqlite3)
 
 add_subdirectory(external/cool)
 
-target_compile_features(neopluto PRIVATE cxx_std_11)
+target_compile_features(neopluto PRIVATE cxx_std_14)
 
 target_include_directories(neopluto PUBLIC include)
 target_include_directories(neopluto PRIVATE ${SQLITE3_INCLUDE_DIR})
