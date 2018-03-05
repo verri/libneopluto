@@ -18,6 +18,7 @@ public:
 
   auto update_name(const char* name) -> void;
   auto retrieve_name() const -> std::string;
+  auto erase() -> void;
 
 private:
   account(std::int64_t, std::shared_ptr<database>);

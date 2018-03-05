@@ -54,7 +54,7 @@ auto database::create_account(const char* name) -> account
   assert(db);
 
   std::stringstream ss;
-  ss << "INSERT INTO ACCOUNT(name) VALUES ('" << name << "');";
+  ss << "INSERT INTO Account(name) VALUES ('" << name << "');";
 
   std::int64_t id = -1;
   try {
@@ -91,6 +91,50 @@ auto database::retrieve_account(const char* name, bool create) -> account
     return create_account(name);
 
   return account(id, shared_from_this());
+}
+
+auto database::create_tag(const char* name) -> tag
+{
+  assert(db);
+
+  std::stringstream ss;
+  ss << "INSERT INTO Tag(name) VALUES ('" << name << "');";
+
+  std::int64_t id = -1;
+  try {
+    exec_query(ss.str().c_str());
+    id = sqlite3_last_insert_rowid(db);
+  } catch (sqlite_exception& e) {
+    if (e.retval == SQLITE_CONSTRAINT_UNIQUE)
+      throw std::runtime_error{"tag already exists"};
+    throw;
+  }
+
+  assert(id > 0);
+  return tag(id, shared_from_this());
+}
+
+auto database::retrieve_tag(const char* name, bool create) -> tag
+{
+
+  assert(db);
+  std::int64_t id = -1;
+
+  std::stringstream ss;
+  ss << "SELECT id FROM Tag WHERE name = '" << name << "';";
+
+  exec_query(ss.str().c_str(), [&](sqlite3_stmt* stmt) {
+    id = sqlite3_column_int(stmt, 0);
+    return false;
+  });
+
+  if (!create && id < 0)
+    throw std::runtime_error{"tag does not exist"};
+
+  if (create && id < 0)
+    return create_tag(name);
+
+  return tag(id, shared_from_this());
 }
 
 database::database(const char* filename)

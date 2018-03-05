@@ -11,12 +11,19 @@ class database;
 
 class tag
 {
+  friend class database;
+
 public:
   tag() = delete;
 
+  auto update_name(const char* name) -> void;
+  auto retrieve_name() const -> std::string;
+  auto erase() -> void;
+
 private:
-  long id;
-  std::string name;
+  tag(std::int64_t, std::shared_ptr<database>);
+
+  std::int64_t id;
   std::shared_ptr<database> db;
 };
 
