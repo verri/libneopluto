@@ -8,10 +8,11 @@ import re
 BASE_FLAGS = [
         '-Wall',
         '-Wextra',
-        '-std=c++14',
+        '-std=c++1z',
         '-xc++',
         '-Iinclude',
         '-Iexternal/cool/include',
+        '-Iexternal/jules/include',
         ]
 
 SOURCE_EXTENSIONS = [
