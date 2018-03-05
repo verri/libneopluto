@@ -7,17 +7,17 @@ add_library(neopluto
   src/account.cpp
   src/database.cpp
   src/exception.cpp
-  src/tag.cpp)
+  src/tag.cpp
+  src/tag_model.cpp)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SQLITE3 REQUIRED sqlite3)
 
 add_subdirectory(external/cool)
-add_subdirectory(external/dlib)
 
 target_compile_features(neopluto PRIVATE cxx_std_11)
 
 target_include_directories(neopluto PUBLIC include)
 target_include_directories(neopluto PRIVATE ${SQLITE3_INCLUDE_DIR})
 
-target_link_libraries(neopluto PRIVATE ${SQLITE3_LIBRARIES} cool dlib)
+target_link_libraries(neopluto PRIVATE ${SQLITE3_LIBRARIES} cool)

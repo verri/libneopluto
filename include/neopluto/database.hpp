@@ -33,12 +33,13 @@ public:
   auto create_tag(const char* name) -> tag;
   auto retrieve_tag(const char* name, bool create = false) -> tag;
 
-  auto income(date, const account&, const char*, const tag&, double) -> entry;
+  auto income(date, const account&, const char*, double) -> entry;
 
-  auto expense(date, const account&, const char*, const tag&, double) -> entry;
+  auto expense(date, const account&, const char*, double) -> entry;
 
-  auto transfer(date, const account&, const account&, const char*, const tag&, double)
-    -> entry;
+  auto transfer(date, const account&, const account&, const char*, double) -> entry;
+
+  auto update_tag_model() -> void;
 
 private:
   database() = delete;
@@ -55,6 +56,7 @@ protected:
   auto exec_query(const char*, std::function<bool(sqlite3_stmt*)>) -> void;
 
   sqlite3* db = nullptr;
+  void* tag_model = nullptr;
 };
 
 } // namespace npl

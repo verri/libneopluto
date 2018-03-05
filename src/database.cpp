@@ -38,6 +38,16 @@ constexpr char init_db_query[] = R"(
     FOREIGN KEY (tag) REFERENCES Tag(id) ON DELETE SET NULL
   );
 
+  CREATE TABLE IF NOT EXISTS Words (
+    id INTEGER PRIMARY KEY,
+    word TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS Model (
+    id INTEGER PRIMARY KEY,
+    model TEXT NOT NULL
+  );
+
   PRAGMA foreign_keys = ON;)";
 }
 
@@ -72,7 +82,6 @@ auto database::create_account(const char* name) -> account
 
 auto database::retrieve_account(const char* name, bool create) -> account
 {
-
   assert(db);
   std::int64_t id = -1;
 
@@ -243,16 +252,6 @@ auto database::exec_query(const char* query, std::function<bool(sqlite3_stmt*)> 
 
   if (retval /* sqlite3_finalize */ != SQLITE_OK)
     throw sqlite_exception{"sqlite3_finalize", retval};
-}
-
-auto database::income(date, const account&, const char*, const tag&, double) -> entry
-{
-  return {};
-}
-
-auto database::expense(date, const account&, const char*, const tag&, double) -> entry
-{
-  return {};
 }
 
 } // namespace npl

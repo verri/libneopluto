@@ -16,7 +16,7 @@ class account
 public:
   account() = delete;
 
-  auto update_name(const char* name) -> void;
+  auto update_name(const char*) -> void;
   auto retrieve_name() const -> std::string;
   auto erase() -> void;
 
