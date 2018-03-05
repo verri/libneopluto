@@ -4,7 +4,8 @@
 namespace npl
 {
 
-class entry {
+class entry
+{
 };
 
 } // namespace pl
