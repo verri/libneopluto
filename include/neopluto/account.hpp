@@ -11,12 +11,18 @@ class database;
 
 class account
 {
+  friend class database;
+
 public:
   account() = delete;
 
+  auto update_name(const char* name) -> void;
+  auto retrieve_name() const -> std::string;
+
 private:
-  long id;
-  std::string name;
+  account(std::int64_t, std::shared_ptr<database>);
+
+  std::int64_t id;
   std::shared_ptr<database> db;
 };
 

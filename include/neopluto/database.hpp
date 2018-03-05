@@ -17,17 +17,21 @@ typedef struct sqlite3_stmt sqlite3_stmt;
 namespace npl
 {
 
-class database
+class database : public std::enable_shared_from_this<database>
 {
   friend class tag;
   friend class account;
   friend class entry;
 
+public:
   static auto open(const char*) -> std::shared_ptr<database>;
+  ~database();
 
-  auto get_account(const char* name) -> account;
+  auto create_account(const char* name) -> account;
+  auto retrieve_account(const char* name, bool create = false) -> account;
 
-  auto get_tag(const char* name) -> tag;
+  auto create_tag(const char* name) -> tag;
+  auto retrieve_tag(const char* name, bool create = false) -> tag;
 
   auto income(date, const account&, const char*, const tag&, double) -> entry;
 
@@ -37,8 +41,8 @@ class database
     -> entry;
 
 private:
+  database() = delete;
   database(const char*);
-  ~database();
 
   database(database&&) = delete;
   auto operator=(database &&) -> database& = delete;

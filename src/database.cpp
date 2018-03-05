@@ -38,12 +38,60 @@ constexpr char init_db_query[] = R"(
     FOREIGN KEY (tag) REFERENCES Tag(id) ON DELETE SET NULL
   );
 
-  PRAGMA foreign_keys = ON;
-)";
+  PRAGMA foreign_keys = ON;)";
 }
 
 namespace npl
 {
+
+auto database::open(const char* filename) -> std::shared_ptr<database>
+{
+  return std::shared_ptr<database>{new database(filename)};
+}
+
+auto database::create_account(const char* name) -> account
+{
+  assert(db);
+
+  std::stringstream ss;
+  ss << "INSERT INTO ACCOUNT(name) VALUES ('" << name << "');";
+
+  std::int64_t id = -1;
+  try {
+    exec_query(ss.str().c_str());
+    id = sqlite3_last_insert_rowid(db);
+  } catch (sqlite_exception& e) {
+    if (e.retval == SQLITE_CONSTRAINT_UNIQUE)
+      throw std::runtime_error{"account already exists"};
+    throw;
+  }
+
+  assert(id > 0);
+  return account(id, shared_from_this());
+}
+
+auto database::retrieve_account(const char* name, bool create) -> account
+{
+
+  assert(db);
+  std::int64_t id = -1;
+
+  std::stringstream ss;
+  ss << "SELECT id FROM Account WHERE name = '" << name << "';";
+
+  exec_query(ss.str().c_str(), [&](sqlite3_stmt* stmt) {
+    id = sqlite3_column_int(stmt, 0);
+    return false;
+  });
+
+  if (!create && id < 0)
+    throw std::runtime_error{"account does not exist"};
+
+  if (create && id < 0)
+    return create_account(name);
+
+  return account(id, shared_from_this());
+}
 
 database::database(const char* filename)
 {

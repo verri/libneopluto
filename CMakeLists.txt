@@ -4,7 +4,9 @@ project(NeoPluto VERSION 0.0.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(neopluto
-  src/database.cpp)
+  src/account.cpp
+  src/database.cpp
+  src/exception.cpp)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SQLITE3 REQUIRED sqlite3)
