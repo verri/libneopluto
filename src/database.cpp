@@ -1,10 +1,11 @@
-#include "neopluto/database.hpp"
-
-#include "neopluto/exception.hpp"
+#include <neopluto/database.hpp>
+#include <neopluto/exception.hpp>
 
 #include <cassert>
 #include <cool/defer.hpp>
+#include <functional>
 #include <sqlite3.h>
+#include <sstream>
 
 #ifndef NDEBUG
 #include <iostream>
@@ -23,17 +24,17 @@ constexpr char init_db_query[] = R"(
     name TEXT UNIQUE
   );
 
-  CREATE TABLE IF NOT EXISTS Tracking (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+  CREATE TABLE IF NOT EXISTS Entry (
+    id INTEGER PRIMARY KEY,
     date INTEGER NOT NULL,
-    account INTEGER NOT NULL,
+    accountfrom INTEGER DEFAULT NULL,
+    accountto INTEGER DEFAULT NULL,
     description TEXT NOT NULL,
     tag INTEGER DEFAULT NULL,
-    quantity REAL NOT NULL,
     value REAL NOT NULL,
 
-    CHECK (quantity > 0),
-    FOREIGN KEY (account) REFERENCES Account(id) ON DELETE CASCADE,
+    FOREIGN KEY (accountfrom) REFERENCES Account(id) ON DELETE SET NULL,
+    FOREIGN KEY (accountto) REFERENCES Account(id) ON DELETE SET NULL,
     FOREIGN KEY (tag) REFERENCES Tag(id) ON DELETE SET NULL
   );
 
@@ -103,6 +104,50 @@ auto database::close() -> void
     throw sqlite_exception("sqlite3_close", retval);
 
   db = nullptr;
+}
+
+auto database::exec_query(const char* query) -> void
+{
+  int retval;
+  sqlite3_stmt* stmt;
+
+  while (query[0] != '\0') {
+#ifndef NDEBUG
+    std::clog << ">\t";
+    char c;
+    int i = 0;
+    while ((c = query[i++]) != ';')
+      std::clog << c;
+    std::clog << ';' << std::endl;
+#endif // NDEBUG
+
+    retval = sqlite3_prepare_v2(db, query, -1, &stmt, &query);
+    if (retval != SQLITE_OK)
+      throw sqlite_exception{"sqlite3_prepare_v2", retval};
+
+    {
+      // Ensures to finalize the statement.
+      COOL_DEFER({ retval = sqlite3_finalize(stmt); });
+
+      retval = sqlite3_step(stmt);
+      if (retval != SQLITE_DONE)
+        throw sqlite_exception{"sqlite3_step", retval,
+                               retval == SQLITE_ERROR ? sqlite3_errmsg(db) : nullptr};
+    }
+
+    if (retval /* sqlite3_finalize */ != SQLITE_OK)
+      throw sqlite_exception{"sqlite3_finalize", retval};
+  }
+}
+
+auto database::income(date, const account&, const char*, const tag&, double) -> entry
+{
+  return {};
+}
+
+auto database::expense(date, const account&, const char*, const tag&, double) -> entry
+{
+  return {};
 }
 
 } // namespace npl
