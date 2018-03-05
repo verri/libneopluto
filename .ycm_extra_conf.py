@@ -11,6 +11,7 @@ BASE_FLAGS = [
         '-std=c++11',
         '-xc++',
         '-Iinclude',
+        '-Iexternal/cool/include'
         ]
 
 SOURCE_EXTENSIONS = [
