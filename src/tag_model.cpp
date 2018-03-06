@@ -30,7 +30,7 @@ auto database::update_tag_model() -> void
 #endif
 
   // Get all words
-  constexpr char query[] = "SELECT description FROM Entry;";
+  constexpr char query[] = "SELECT description FROM Entry WHERE tag IS NOT NULL;";
   exec_query(query, [&](sqlite3_stmt* stmt) {
     ++nentries;
 

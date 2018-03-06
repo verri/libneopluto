@@ -8,10 +8,12 @@ namespace npl
 {
 
 class database;
+class entry;
 
 class tag
 {
   friend class database;
+  friend class entry;
 
 public:
   tag() = delete;
