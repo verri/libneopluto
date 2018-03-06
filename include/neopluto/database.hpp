@@ -42,7 +42,7 @@ public:
 
   auto update_tag_model() -> void;
   auto clear_tag_model() -> void;
-  auto suggest_tag(const char*) const -> std::optional<tag>;
+  auto suggest_tag(const char*) -> std::optional<tag>;
 
 private:
   database() = delete;
