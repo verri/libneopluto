@@ -4,8 +4,8 @@
 #include <neopluto/tag.hpp>
 
 #include <memory>
-#include <string>
 #include <optional>
+#include <string>
 
 namespace npl
 {
