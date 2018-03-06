@@ -6,17 +6,35 @@
 #include <unordered_map>
 
 #include <boost/locale.hpp>
+#include <jules/array/array.hpp>
 
 #ifndef NDEBUG
 #include <iostream>
 #endif
 
+namespace
+{
+class tag_classifier
+{
+public:
+
+private:
+  jules::matrix<> freq;
+};
+
+}
 namespace npl
 {
 
 auto database::update_tag_model() -> void
 {
   assert(db);
+
+  if (tag_model)
+    clear_tag_model();
+
+  tag_classifier* const classifier = new tag_classifier();
+  tag_model = classifier;
 
   std::unordered_map<std::string, std::int64_t> words;
   std::int64_t current = 0;
@@ -55,6 +73,22 @@ auto database::update_tag_model() -> void
 
     return true;
   });
+}
+
+auto database::clear_tag_model() -> void
+{
+  const auto classifier = reinterpret_cast<tag_classifier*>(tag_model);
+  if (classifier)
+    delete classifier;
+}
+
+auto database::suggest_tag(const char*) const -> std::optional<tag>
+{
+  const auto classifier = reinterpret_cast<tag_classifier*>(tag_model);
+  if (!classifier)
+    return std::nullopt;
+
+  return {};
 }
 
 } // namespace npl

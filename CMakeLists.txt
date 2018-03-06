@@ -26,3 +26,8 @@ target_include_directories(neopluto PUBLIC include)
 target_include_directories(neopluto PRIVATE ${SQLITE3_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(neopluto PRIVATE ${SQLITE3_LIBRARIES} ${Boost_LOCALE_LIBRARY} cool jules)
+
+target_compile_options(neopluto PRIVATE "$<$<CONFIG:DEBUG>:-O0>")
+target_compile_options(neopluto PRIVATE "$<$<CONFIG:DEBUG>:-fno-omit-frame-pointer>")
+target_compile_options(neopluto PRIVATE "$<$<CONFIG:DEBUG>:-fsanitize=address,leak,undefined>")
+set_target_properties(neopluto PROPERTIES LINK_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address,leak,undefined -fuse-ld=gold")

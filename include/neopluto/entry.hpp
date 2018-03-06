@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <optional>
 
 namespace npl
 {
@@ -26,11 +27,10 @@ public:
   auto retrieve_description() const -> std::string;
 
   auto update_tag(const tag&) -> void;
+  auto update_tag(const std::optional<tag>&) -> void;
   auto has_tag() const -> bool;
-  auto retrieve_tag() const -> tag;
+  auto retrieve_tag() const -> std::optional<tag>;
   auto erase_tag() -> void;
-
-  auto suggest_tag() -> tag;
 
   auto erase() -> void;
 

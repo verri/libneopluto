@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 
 extern "C" {
 typedef struct sqlite3 sqlite3;
@@ -40,6 +41,8 @@ public:
   auto transfer(date, const account&, const account&, const char*, double) -> entry;
 
   auto update_tag_model() -> void;
+  auto clear_tag_model() -> void;
+  auto suggest_tag(const char*) const -> std::optional<tag>;
 
 private:
   database() = delete;
