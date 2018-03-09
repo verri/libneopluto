@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(NeoPluto VERSION 0.0.0)
+project(LibNeoPluto VERSION 0.0.0)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -9,6 +9,7 @@ add_library(neopluto
   src/date.cpp
   src/entry.cpp
   src/exception.cpp
+  src/naive_bayes.cpp
   src/tag.cpp
   src/tag_model.cpp)
 
