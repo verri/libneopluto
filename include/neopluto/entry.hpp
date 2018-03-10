@@ -21,9 +21,9 @@ class entry
 public:
   entry() = delete;
 
-  auto is_transfer() -> bool;
-  auto is_income() -> bool;
-  auto is_expense() -> bool;
+  auto is_transfer() const -> bool;
+  auto is_income() const -> bool;
+  auto is_expense() const -> bool;
 
   auto update_description(const char*) -> void;
   auto retrieve_description() const -> std::string;

@@ -9,6 +9,57 @@
 namespace npl
 {
 
+auto entry::is_transfer() const -> bool
+{
+  assert(db);
+
+  std::stringstream ss;
+  ss << "SELECT id FROM Entry WHERE id = " << id
+     << " AND accountfrom IS NOT NULL AND accountto IS NOT NULL;";
+
+  bool result = false;
+  db->exec_query(ss.str().c_str(), [&result](sqlite3_stmt*) {
+    result = true;
+    return false;
+  });
+
+  return result;
+}
+
+auto entry::is_income() const -> bool
+{
+  assert(db);
+
+  std::stringstream ss;
+  ss << "SELECT id FROM Entry WHERE id = " << id
+     << " AND accountfrom IS NULL AND accountto IS NOT NULL;";
+
+  bool result = false;
+  db->exec_query(ss.str().c_str(), [&result](sqlite3_stmt*) {
+    result = true;
+    return false;
+  });
+
+  return result;
+}
+
+auto entry::is_expense() const -> bool
+{
+  assert(db);
+
+  std::stringstream ss;
+  ss << "SELECT id FROM Entry WHERE id = " << id
+     << " AND accountfrom IS NOT NULL AND accountto IS NULL;";
+
+  bool result = false;
+  db->exec_query(ss.str().c_str(), [&result](sqlite3_stmt*) {
+    result = true;
+    return false;
+  });
+
+  return result;
+}
+
 auto entry::update_description(const char* desc) -> void
 {
   assert(db);
