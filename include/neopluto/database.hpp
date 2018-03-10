@@ -4,6 +4,7 @@
 #include <neopluto/account.hpp>
 #include <neopluto/date.hpp>
 #include <neopluto/entry.hpp>
+#include <neopluto/query.hpp>
 #include <neopluto/tag.hpp>
 
 #include <functional>
@@ -32,15 +33,24 @@ public:
 
   auto create_account(const char* name) -> account;
   auto retrieve_account(const char* name, bool create = false) -> account;
+  auto retrieve_accounts(std::function<bool(account)>);
+  auto retrieve_accounts(std::size_t max = std::numeric_limits<std::size_t>::max())
+    -> std::vector<account>;
 
   auto create_tag(const char* name) -> tag;
   auto retrieve_tag(const char* name, bool create = false) -> tag;
+  auto retrieve_tags(std::function<bool(tag)>);
+  auto retrieve_tags(std::size_t max = std::numeric_limits<std::size_t>::max())
+    -> std::vector<tag>;
 
   auto income(date, const account&, const char*, double) -> entry;
-
   auto expense(date, const account&, const char*, double) -> entry;
-
   auto transfer(date, const account&, const account&, const char*, double) -> entry;
+
+  auto retrieve_entries(const query&, std::function<bool(entry)>);
+  auto retrieve_entries(const query&,
+                        std::size_t max = std::numeric_limits<std::size_t>::max())
+    -> std::vector<entry>;
 
   auto update_tag_model() -> void;
   auto clear_tag_model() -> void;
