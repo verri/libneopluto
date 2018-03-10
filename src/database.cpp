@@ -105,11 +105,24 @@ auto database::retrieve_account(const char* name, bool create) -> account
 auto database::retrieve_accounts(const std::function<bool(account)>& callback) -> void
 {
   assert(db);
-  std::int64_t id = -1;
-
-  exec_query("SELECT id FROM Account;", [&](sqlite3_stmt* stmt) {
+  exec_query("SELECT id FROM Account ORDER BY name;", [&](sqlite3_stmt* stmt) {
     return callback({sqlite3_column_int(stmt, 0), shared_from_this()});
   });
+}
+
+auto database::retrieve_accounts(std::size_t max) -> std::vector<account>
+{
+  assert(db);
+
+  std::vector<account> accounts;
+  exec_query("SELECT id FROM Account ORDER BY name;", [&](sqlite3_stmt* stmt) mutable {
+    if (accounts.size() >= max)
+      return false;
+    accounts.push_back({sqlite3_column_int(stmt, 0), shared_from_this()});
+    return true;
+  });
+
+  return accounts;
 }
 
 auto database::create_tag(const char* name) -> tag
@@ -153,6 +166,29 @@ auto database::retrieve_tag(const char* name, bool create) -> tag
     return create_tag(name);
 
   return tag(id, shared_from_this());
+}
+
+auto database::retrieve_tags(const std::function<bool(tag)>& callback) -> void
+{
+  assert(db);
+  exec_query("SELECT id FROM Tag ORDER BY name;", [&](sqlite3_stmt* stmt) {
+    return callback({sqlite3_column_int(stmt, 0), shared_from_this()});
+  });
+}
+
+auto database::retrieve_tags(std::size_t max) -> std::vector<tag>
+{
+  assert(db);
+
+  std::vector<tag> tags;
+  exec_query("SELECT id FROM Tag ORDER BY name;", [&](sqlite3_stmt* stmt) mutable {
+    if (tags.size() >= max)
+      return false;
+    tags.push_back({sqlite3_column_int(stmt, 0), shared_from_this()});
+    return true;
+  });
+
+  return tags;
 }
 
 auto database::income(date d, const account& ac, const char* desc, double value) -> entry
