@@ -5,15 +5,33 @@
 namespace npl
 {
 
-auto query::since(date d) -> query&
+auto query::since(std::optional<date> d) -> query&
 {
-  since_ = d;
+  since_ = std::move(d);
   return *this;
 }
 
-auto query::until(date d) -> query&
+auto query::until(std::optional<date> d) -> query&
 {
-  until_ = d;
+  until_ = std::move(d);
+  return *this;
+}
+
+auto query::from(std::optional<account> acc) -> query&
+{
+  from_ = std::move(acc);
+  return *this;
+}
+
+auto query::to(std::optional<account> acc) -> query&
+{
+  to_ = std::move(acc);
+  return *this;
+}
+
+auto query::has_tag(std::optional<tag> t) -> query&
+{
+  tag_ = std::move(t);
   return *this;
 }
 
