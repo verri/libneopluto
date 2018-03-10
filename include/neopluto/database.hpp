@@ -43,9 +43,9 @@ public:
   auto retrieve_tags(std::size_t max = std::numeric_limits<std::size_t>::max())
     -> std::vector<tag>;
 
-  auto income(date, const account&, const char*, double) -> entry;
-  auto expense(date, const account&, const char*, double) -> entry;
-  auto transfer(date, const account&, const account&, const char*, double) -> entry;
+  auto income(date, const account&, const char*, std::int64_t) -> entry;
+  auto expense(date, const account&, const char*, std::int64_t) -> entry;
+  auto transfer(date, const account&, const account&, const char*, std::int64_t) -> entry;
 
   auto retrieve_entries(const query&, const std::function<bool(entry)>&) -> void;
   auto retrieve_entries(const query&,

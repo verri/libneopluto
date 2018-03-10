@@ -40,34 +40,21 @@ auto entry::retrieve_description() const -> std::string
   return name;
 }
 
-auto entry::update_tag(const tag& t) -> void
+auto entry::update_tag(const std::optional<tag>& t) -> void
 {
   assert(db);
-  assert(t.id > 0);
-  assert(t.db == db);
+  if (!t) {
+    std::stringstream ss;
+    ss << "UPDATE Entry SET tag = NULL WHERE id = " << id << ';';
+    db->exec_query(ss.str().c_str());
+    return;
+  }
+
+  assert(t->id > 0);
+  assert(t->db == db);
 
   std::stringstream ss;
-  ss << "UPDATE Entry SET tag = " << t.id << " WHERE id = " << id << ';';
-
-  db->exec_query(ss.str().c_str());
-}
-
-// auto entry::has_tag() const -> bool
-// {
-//
-// }
-//
-// auto entry::retrieve_tag() const -> tag
-// {
-//
-// }
-
-auto entry::erase_tag() -> void
-{
-  assert(db);
-
-  std::stringstream ss;
-  ss << "UPDATE Entry SET tag = NULL WHERE id = " << id << ';';
+  ss << "UPDATE Entry SET tag = " << t->id << " WHERE id = " << id << ';';
 
   db->exec_query(ss.str().c_str());
 }

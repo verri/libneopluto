@@ -30,7 +30,7 @@ constexpr char init_db_query[] = R"(
     accountfrom INTEGER DEFAULT NULL,
     accountto INTEGER DEFAULT NULL,
     description TEXT NOT NULL,
-    value REAL NOT NULL,
+    value INTEGER NOT NULL,
     tag INTEGER DEFAULT NULL,
 
     FOREIGN KEY (accountfrom) REFERENCES Account(id) ON DELETE SET NULL,
@@ -191,7 +191,8 @@ auto database::retrieve_tags(std::size_t max) -> std::vector<tag>
   return tags;
 }
 
-auto database::income(date d, const account& ac, const char* desc, double value) -> entry
+auto database::income(date d, const account& ac, const char* desc, std::int64_t value)
+  -> entry
 {
   assert(db);
 
@@ -208,7 +209,8 @@ auto database::income(date d, const account& ac, const char* desc, double value)
   return entry(id, shared_from_this());
 }
 
-auto database::expense(date d, const account& ac, const char* desc, double value) -> entry
+auto database::expense(date d, const account& ac, const char* desc, std::int64_t value)
+  -> entry
 {
   assert(db);
 
@@ -226,7 +228,7 @@ auto database::expense(date d, const account& ac, const char* desc, double value
 }
 
 auto database::transfer(date d, const account& from, const account& to, const char* desc,
-                        double value) -> entry
+                        std::int64_t value) -> entry
 {
   assert(db);
 
