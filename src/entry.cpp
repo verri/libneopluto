@@ -146,8 +146,8 @@ auto entry::retrieve_value() const -> std::int64_t
 auto entry::update_tag(const std::optional<tag>& t) -> void
 {
   assert(db);
-  assert(!db || t->id > 0);
-  assert(!db || t->db == db);
+  assert(!t || t->id > 0);
+  assert(!t || t->db == db);
 
   std::stringstream ss;
   ss << "UPDATE Entry SET tag = ";
@@ -179,6 +179,82 @@ auto entry::retrieve_tag() const -> std::optional<tag>
     return std::nullopt;
 
   return tag{id, db};
+}
+
+auto entry::update_from_account(const std::optional<account>& acc) -> void
+{
+  assert(db);
+  assert(!acc || acc->id > 0);
+  assert(!acc || acc->db == db);
+
+  std::stringstream ss;
+  ss << "UPDATE Entry SET accountfrom = ";
+
+  if (acc)
+    ss << acc->id;
+  else
+    ss << "NULL";
+
+  ss << " WHERE id = " << id << ';';
+
+  db->exec_query(ss.str().c_str());
+}
+
+auto entry::retrieve_from_account() const -> std::optional<account>
+{
+  assert(db);
+
+  std::stringstream ss;
+  ss << "SELECT accountfrom FROM Entry WHERE id = " << id << ";";
+
+  std::int64_t id = -1;
+  db->exec_query(ss.str().c_str(), [&](sqlite3_stmt* stmt) {
+    id = sqlite3_column_int(stmt, 0);
+    return false;
+  });
+
+  if (id == -1)
+    return std::nullopt;
+
+  return account{id, db};
+}
+
+auto entry::update_to_account(const std::optional<account>& acc) -> void
+{
+  assert(db);
+  assert(!acc || acc->id > 0);
+  assert(!acc || acc->db == db);
+
+  std::stringstream ss;
+  ss << "UPDATE Entry SET accountto = ";
+
+  if (acc)
+    ss << acc->id;
+  else
+    ss << "NULL";
+
+  ss << " WHERE id = " << id << ';';
+
+  db->exec_query(ss.str().c_str());
+}
+
+auto entry::retrieve_to_account() const -> std::optional<account>
+{
+  assert(db);
+
+  std::stringstream ss;
+  ss << "SELECT accountto FROM Entry WHERE id = " << id << ";";
+
+  std::int64_t id = -1;
+  db->exec_query(ss.str().c_str(), [&](sqlite3_stmt* stmt) {
+    id = sqlite3_column_int(stmt, 0);
+    return false;
+  });
+
+  if (id == -1)
+    return std::nullopt;
+
+  return account{id, db};
 }
 
 auto entry::erase() -> void
