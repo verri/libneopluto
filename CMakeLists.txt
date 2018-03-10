@@ -10,6 +10,7 @@ add_library(neopluto
   src/entry.cpp
   src/exception.cpp
   src/naive_bayes.cpp
+  src/query.cpp
   src/tag.cpp
   src/tag_model.cpp)
 

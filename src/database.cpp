@@ -115,7 +115,7 @@ auto database::retrieve_accounts(std::size_t max) -> std::vector<account>
   assert(db);
 
   std::vector<account> accounts;
-  exec_query("SELECT id FROM Account ORDER BY name;", [&](sqlite3_stmt* stmt) mutable {
+  exec_query("SELECT id FROM Account ORDER BY name;", [&](sqlite3_stmt* stmt) {
     if (accounts.size() >= max)
       return false;
     accounts.push_back({sqlite3_column_int(stmt, 0), shared_from_this()});
@@ -181,7 +181,7 @@ auto database::retrieve_tags(std::size_t max) -> std::vector<tag>
   assert(db);
 
   std::vector<tag> tags;
-  exec_query("SELECT id FROM Tag ORDER BY name;", [&](sqlite3_stmt* stmt) mutable {
+  exec_query("SELECT id FROM Tag ORDER BY name;", [&](sqlite3_stmt* stmt) {
     if (tags.size() >= max)
       return false;
     tags.push_back({sqlite3_column_int(stmt, 0), shared_from_this()});
@@ -241,6 +241,35 @@ auto database::transfer(date d, const account& from, const account& to, const ch
 
   assert(id > 0);
   return entry(id, shared_from_this());
+}
+
+auto database::retrieve_entries(const query& query,
+                                const std::function<bool(entry)>& callback) -> void
+{
+  assert(db);
+
+  const auto querystr = "SELECT id FROM Entry " + query.where_clause() + ";";
+
+  exec_query(querystr.c_str(), [&](sqlite3_stmt* stmt) {
+    return callback({sqlite3_column_int(stmt, 0), shared_from_this()});
+  });
+}
+
+auto database::retrieve_entries(const query& query, std::size_t max) -> std::vector<entry>
+{
+  assert(db);
+
+  const auto querystr = "SELECT id FROM Entry " + query.where_clause() + ";";
+
+  std::vector<entry> entries;
+  exec_query(querystr.c_str(), [&](sqlite3_stmt* stmt) {
+    if (entries.size() >= max)
+      return false;
+    entries.push_back({sqlite3_column_int(stmt, 0), shared_from_this()});
+    return true;
+  });
+
+  return entries;
 }
 
 database::database(const char* filename)
