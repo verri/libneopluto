@@ -102,6 +102,16 @@ auto database::retrieve_account(const char* name, bool create) -> account
   return account(id, shared_from_this());
 }
 
+auto database::retrieve_accounts(const std::function<bool(account)>& callback) -> void
+{
+  assert(db);
+  std::int64_t id = -1;
+
+  exec_query("SELECT id FROM Account;", [&](sqlite3_stmt* stmt) {
+    return callback({sqlite3_column_int(stmt, 0), shared_from_this()});
+  });
+}
+
 auto database::create_tag(const char* name) -> tag
 {
   assert(db);
