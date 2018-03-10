@@ -220,8 +220,6 @@ database::database(const char* filename)
 
 database::~database()
 {
-  clear_tag_model();
-
   if (!db)
     return;
 

@@ -18,6 +18,8 @@ typedef struct sqlite3_stmt sqlite3_stmt;
 namespace npl
 {
 
+struct tag_classifier;
+
 class database : public std::enable_shared_from_this<database>
 {
   friend class tag;
@@ -59,7 +61,8 @@ protected:
   auto exec_query(const char*, std::function<bool(sqlite3_stmt*)>) -> void;
 
   sqlite3* db = nullptr;
-  void* tag_model = nullptr;
+  std::unique_ptr<tag_classifier, void (*)(tag_classifier*)> classifier = {nullptr,
+                                                                           [](auto*) {}};
 };
 
 } // namespace npl

@@ -18,7 +18,6 @@ namespace npl
 auto database::update_tag_model() -> void
 {
   assert(db);
-  clear_tag_model();
 
   std::unordered_map<std::string, std::size_t> words;
   std::unordered_map<std::size_t, std::int64_t> label_to_tag;
@@ -77,21 +76,15 @@ auto database::update_tag_model() -> void
     return true;
   });
 
-  tag_classifier* const classifier =
-    nb::build_tag_model(dataset, std::move(words), std::move(label_to_tag));
-  tag_model = classifier;
+  classifier = std::unique_ptr<tag_classifier, void (*)(tag_classifier*)>(
+    nb::build_tag_model(dataset, std::move(words), std::move(label_to_tag)),
+    &nb::destroy_tag_model);
 }
 
-auto database::clear_tag_model() -> void
-{
-  const auto classifier = reinterpret_cast<tag_classifier*>(tag_model);
-  if (classifier)
-    nb::destroy_tag_model(classifier);
-}
+auto database::clear_tag_model() -> void { classifier = nullptr; }
 
 auto database::suggest_tag(const char* desc) -> std::optional<tag>
 {
-  const auto classifier = reinterpret_cast<const tag_classifier*>(tag_model);
   if (!classifier)
     return std::nullopt;
 
@@ -106,7 +99,8 @@ auto database::suggest_tag(const char* desc) -> std::optional<tag>
   bb::ssegment_index map(bb::word, description.begin(), description.end(), locale);
   map.rule(bb::word_letter);
 
-  return tag(nb::classify(classifier, {map.begin(), map.end()}), shared_from_this());
+  return tag(nb::classify(classifier.get(), {map.begin(), map.end()}),
+             shared_from_this());
 }
 
 } // namespace npl
