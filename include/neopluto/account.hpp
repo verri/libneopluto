@@ -9,11 +9,13 @@ namespace npl
 
 class database;
 class entry;
+class query;
 
 class account
 {
   friend class database;
   friend class entry;
+  friend class query;
 
 public:
   account() = delete;

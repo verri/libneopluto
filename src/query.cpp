@@ -53,6 +53,15 @@ auto query::where_clause() const -> std::string
   if (until_)
     add_restriction("date <= ", until_->to_integer());
 
+  if (from_)
+    add_restriction("accountfrom = ", from_->id);
+
+  if (to_)
+    add_restriction("accountto = ", to_->id);
+
+  if (tag_)
+    add_restriction("tag = ", tag_->id);
+
   const auto clause = ss.str();
   return clause.empty() ? clause : "WHERE " + clause;
 }

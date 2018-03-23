@@ -14,7 +14,7 @@ auto account::update_name(const char* name) -> void
   assert(db);
 
   std::stringstream ss;
-  ss << "UPDATE Account SET name  = " << std::quoted(name) << " WHERE id = " << id << ';';
+  ss << "UPDATE Account SET name = " << std::quoted(name) << " WHERE id = " << id << ';';
 
   db->exec_query(ss.str().c_str());
 }
