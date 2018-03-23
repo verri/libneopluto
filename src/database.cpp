@@ -38,16 +38,6 @@ constexpr char init_db_query[] = R"(
     FOREIGN KEY (tag) REFERENCES Tag(id) ON DELETE SET NULL
   );
 
-  CREATE TABLE IF NOT EXISTS Words (
-    id INTEGER PRIMARY KEY,
-    word TEXT NOT NULL
-  );
-
-  CREATE TABLE IF NOT EXISTS Model (
-    id INTEGER PRIMARY KEY,
-    model TEXT NOT NULL
-  );
-
   PRAGMA foreign_keys = ON;)";
 }
 
